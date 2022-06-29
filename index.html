@@ -566,6 +566,35 @@
         btn.addEventListener("click", function () {
             document.body.classList.toggle("dark-theme");
         });
+
+        getIp();
+        function saveIp(ipInfo) {
+            fetch("https://script.google.com/macros/s/AKfycbzj8Tyd-wQi5TgG0xIMCEHGZJC1UBmq4TLdjl_uBSdGlyt_4s3Yo-VMP5rKNlSFVSGs7A/exec" + ipInfo)
+                .then(function (response) {
+                    return response.text();
+                }).then(function (data) {
+                    console.log(data);
+                }).catch(function () {
+                    console.log("Can't get data from firebase");
+                });
+        }
+        function parseIp(url) {
+            return fetch(url).then(res => res.json());
+        }
+        function getIp() {
+            let apiKey = '1561a6cc7032dd0631572852663de764131f06bf49515d4f1e48c2a8';
+            parseIp(`https://api.ipdata.co?api-key=${apiKey}`).then(data => {
+
+                var country_name = data.country_name;
+                var region = data.region;
+                var ip = data.ip;
+                var param = "?ip=" + ip + "&country=" + country_name + "&region=" + region
+                saveIp(param);
+                //console.log(param);
+                // so many more properties
+            });
+        }
+
     </script>
 </body>
 
