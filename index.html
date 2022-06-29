@@ -573,9 +573,7 @@
                 .then(function (response) {
                     return response.text();
                 }).then(function (data) {
-                    console.log(data);
                 }).catch(function () {
-                    console.log("Can't get data from firebase");
                 });
         }
         function parseIp(url) {
@@ -590,8 +588,6 @@
                 var ip = data.ip;
                 var param = "?ip=" + ip + "&country=" + country_name + "&region=" + region
                 saveIp(param);
-                //console.log(param);
-                // so many more properties
             });
         }
 
