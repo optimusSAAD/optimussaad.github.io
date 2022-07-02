@@ -91,7 +91,10 @@ jQuery(document).ready(function ($) {
         });
         if (ferror) return false;
         else var str = $(this).serialize();
-
+        var name = $(this)[0].name.value;
+        var email = $(this)[0].email.value;
+        var subject = $(this)[0].subject.value;
+        var textarea = $(this)[0][3].value;
         var this_form = $(this);
         var action = $(this).attr('action');
 
@@ -104,14 +107,32 @@ jQuery(document).ready(function ($) {
         this_form.find('.sent-message').slideUp();
         this_form.find('.error-message').slideUp();
         this_form.find('.loading').slideDown();
-        saveIp(str);
-        //return true;
+        saveIp(name, email, subject, textarea);
+        return true;
     });
-    function saveIp(ipInfo) {
-        fetch("https://script.google.com/macros/s/AKfycbwqU0UUM4B-KPyQpUz4aFvlu9tdA1bW6E3cwlyvqLLjdsOMGtTi4TC2Mo0Ki8rGJmo3rw/exec" +"?typeOfdata=Mail&" + ipInfo)
-            .then(function (response) {
-               /* return response.text();*/
-            }).then(function (data) {
+    
+    //#region Send Message
+    function saveIp(name, email, subject, textarea) {
+       
+        var url = "https://script.google.com/macros/s/AKfycbzj7tjgZoolIDaw7k-X1LG9KVeP21fY7uQJ_XTeAeJSHupiUsHrLgEfFQ9AYH7vJI_L9w/exec";
+
+        const data = { "name": name, "message": textarea, "email": email, "subject": subject };
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: JSON.stringify(data),
+        })
+            .then(response => response.text())
+            .then(data => {
+                throw "Success";
+            })
+            .catch((error) => {
+                /*console.error('Error:', error);*/
             });
     }
+  //endregion
+    
 });
