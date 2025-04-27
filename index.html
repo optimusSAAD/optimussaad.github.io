@@ -61,6 +61,29 @@
             body.dark-theme a {
                 color: #809fff;
             }
+
+
+        .loading, .sent-message, .error-message {
+            display: none;
+        }
+
+        .loading {
+            margin: .5rem 0;
+        }
+
+        .sent-message {
+            background: #28a745;
+            color: white;
+            padding: .75rem;
+            margin-top: .5rem;
+        }
+
+        .error-message {
+            background: #dc3545;
+            color: white;
+            padding: .75rem;
+            margin-top: .5rem;
+        }
     </style>
 
     <!-- Template Main CSS File -->
@@ -518,30 +541,32 @@
                     </div>
 
                     <div class="col-lg-8 mt-5 mt-lg-0">
-
-                        <form action="https://script.google.com/macros/s/AKfycbySPPuhlmyI6B4jzKrnk5-qOtIClvS-rbpmt4x-1OTR7GDr6BM6s7ktrEH4rPU1CSOvsg/exec" method="post" role="form" class="php-email-form">
+                        <!-- 1) no action/method here -->
+                        <form id="contactForm" role="form" class="php-email-form">
+                            <!-- … your inputs … -->
                             <div class="row">
                                 <div class="col-md-6 form-group">
-                                    <input type="text" name="name" class="form-control" id="name" placeholder="Your Name" required value="">
+                                    <input type="text" name="name" id="name" class="form-control" placeholder="Your Name" required>
                                 </div>
                                 <div class="col-md-6 form-group mt-3 mt-md-0">
-                                    <input type="email" class="form-control" name="email" id="email" placeholder="Your Email" required value="">
+                                    <input type="email" name="email" id="email" class="form-control" placeholder="Your Email" required>
                                 </div>
                             </div>
                             <div class="form-group mt-3">
-                                <input type="text" class="form-control" name="subject" id="subject" placeholder="Subject" required value="">
+                                <input type="text" name="subject" id="subject" class="form-control" placeholder="Subject" required>
                             </div>
                             <div class="form-group mt-3">
-                                <textarea class="form-control" name="message" rows="5" placeholder="Message" required value=""></textarea>
+                                <textarea name="message" id="message" class="form-control" rows="5" placeholder="Message" required></textarea>
                             </div>
                             <div class="my-3">
-                                <div class="loading">Loading</div>
+                                <div class="loading">Loading…</div>
                                 <div class="error-message"></div>
                                 <div class="sent-message">Your message has been sent. Thank you!</div>
                             </div>
-                            <div class="text-center"><button type="submit">Send Message</button></div>
+                            <div class="text-center"><button id="sendBtn" type="submit">Send Message</button></div>
                         </form>
                     </div>
+
                 </div>
 
             </div>
@@ -584,6 +609,61 @@
 
     <!-- Template Main JS File -->
     <script src="assets/js/main.js"></script>
+
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxRiWqRo5D5AkF6bciD60BmzWQDpL87cCHMPMhV9-SB3JZb61IrhlpQJR_RMYt7KOwpZg/exec";
+        const form = document.getElementById("contactForm");
+        const btn = document.getElementById("sendBtn");
+        const loadingEl = form.querySelector(".loading");
+        const successEl = form.querySelector(".sent-message");
+        const errorEl = form.querySelector(".error-message");
+
+        btn.addEventListener("click", function () {
+            // 1) Basic HTML5 validation check
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            // 2) Disable the button & clear old messages
+            btn.disabled = true;
+            errorEl.style.display = "none";
+            successEl.style.display = "none";
+
+            // 3) Show spinner
+            loadingEl.style.display = "block";
+
+            // 4) Collect & encode form data
+            const data = new URLSearchParams(new FormData(form)).toString();
+
+            // 5) Send only ONE AJAX request
+            fetch(SCRIPT_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: data
+            })
+                .then(r => r.json())
+                .then(json => {
+                    if (json.status === "success") {
+                        successEl.style.display = "block";
+                        form.reset();
+                    } else {
+                        errorEl.textContent = json.message;
+                        errorEl.style.display = "block";
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    errorEl.textContent = "Oops! Something went wrong.";
+                    errorEl.style.display = "block";
+                })
+                .finally(() => {
+                    loadingEl.style.display = "none";
+                    btn.disabled = false;
+                });
+        });
+    </script>
+
     <script>
         const btn = document.querySelector(".btn-toggle");
 
@@ -593,7 +673,7 @@
 
         getIp();
         function saveIp(ipInfo) {
-            fetch("https://script.google.com/macros/s/AKfycbzj7tjgZoolIDaw7k-X1LG9KVeP21fY7uQJ_XTeAeJSHupiUsHrLgEfFQ9AYH7vJI_L9w/exec" + ipInfo)
+            fetch("https://script.google.com/macros/s/AKfycbxRiWqRo5D5AkF6bciD60BmzWQDpL87cCHMPMhV9-SB3JZb61IrhlpQJR_RMYt7KOwpZg/exec" + ipInfo)
                 .then(function (response) {
                     return response.text();
                 }).then(function (data) {
