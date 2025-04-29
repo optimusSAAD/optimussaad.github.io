@@ -611,7 +611,7 @@
     <script src="assets/js/main.js"></script>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxRiWqRo5D5AkF6bciD60BmzWQDpL87cCHMPMhV9-SB3JZb61IrhlpQJR_RMYt7KOwpZg/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwinBWMK6Ql7eOoLiag4qxHm9wnWOK7QcnyHoHzM3sED1EGCbjg6eho6XspSYNDOZl33A/exec";
         const form = document.getElementById("contactForm");
         const btn = document.getElementById("sendBtn");
         const loadingEl = form.querySelector(".loading");
@@ -665,35 +665,49 @@
     </script>
 
     <script>
-        const btn = document.querySelector(".btn-toggle");
+        const btnx = document.querySelector(".btn-toggle");
 
-        btn.addEventListener("click", function () {
+        btnx.addEventListener("click", function () {
             document.body.classList.toggle("dark-theme");
         });
 
+        function testSheetAccess() {
+            var sheet = SpreadsheetApp.openById("YOUR_SPREADSHEET_ID").getSheetByName("ip");
+            Logger.log(sheet.getName());
+        }
+
+
         getIp();
-        function saveIp(ipInfo) {
-            fetch("https://script.google.com/macros/s/AKfycbxRiWqRo5D5AkF6bciD60BmzWQDpL87cCHMPMhV9-SB3JZb61IrhlpQJR_RMYt7KOwpZg/exec" + ipInfo)
-                .then(function (response) {
-                    return response.text();
-                }).then(function (data) {
-                }).catch(function () {
+        function saveIp(ip, country, region) {
+            const params = new URLSearchParams({
+                ip: ip,
+                country: country,
+                region: region
+            });
+
+            fetch("https://script.google.com/macros/s/AKfycbwinBWMK6Ql7eOoLiag4qxHm9wnWOK7QcnyHoHzM3sED1EGCbjg6eho6XspSYNDOZl33A/exec?" + params.toString())
+                .then(response => response.text())
+                .then(data => {
+                    console.log("Saved:", data);
+                })
+                .catch(error => {
+                    console.error("Save failed:", error);
                 });
         }
-        function parseIp(url) {
-            return fetch(url).then(res => res.json());
-        }
+
         function getIp() {
             let apiKey = '1561a6cc7032dd0631572852663de764131f06bf49515d4f1e48c2a8';
-            parseIp(`https://api.ipdata.co?api-key=${apiKey}`).then(data => {
-
-                var country_name = data.country_name;
-                var region = data.region;
-                var ip = data.ip;
-                var param = "?typeOfdata=IP&ip=" + ip + "&country=" + country_name + "&region=" + region
-                saveIp(param);
-            });
+            fetch(`https://api.ipdata.co?api-key=${apiKey}`)
+                .then(res => res.json())
+                .then(data => {
+                    let ip = data.ip;
+                    let country = data.country_name;
+                    let region = data.region;
+                    saveIp(ip, country, region);
+                })
+                .catch(error => console.error("IP fetch error:", error));
         }
+        
     </script>
     <script>
         const dob = new Date('1995-12-12T00:00:00'); // Hardcoded Date of Birth
